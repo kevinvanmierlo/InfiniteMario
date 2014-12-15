@@ -16,17 +16,17 @@ import javax.swing.JScrollPane;
  * @author Thomas & Kevin
  */
 public class CelularAutomata extends JFrame{
-    private String OS = System.getProperty("os.name").toLowerCase();    
-    private JPanel worldPanel;
+    private final String OS;    
+    private final JPanel worldPanel;
     private int[][] land;
-    private int width = 1000;
-    private int height = 15;
+    private final int width = 1000;
+    private final int height = 15;
     private int blockSize = 10;
     
-    public CelularAutomata(){
-        //this.width = width;
-        //this.height = height;
-        //this.blockSize = blockSize;
+    public CelularAutomata()
+    {
+        OS = System.getProperty("os.name").toLowerCase();
+        
         this.land = new int[this.height][this.width];
         worldPanel = new JPanel() {
             @Override
@@ -104,7 +104,6 @@ public class CelularAutomata extends JFrame{
                 if(land[i][j] == 1 && topBottom[i][j] == 0){
                     if(i < land.length - 2 && land[i+2][j] == 1){
                          land[i][j] = 2;
-                         System.out.println("bling");
                     }
                 }
             }
@@ -122,11 +121,8 @@ public class CelularAutomata extends JFrame{
                 if(j < land[0].length - 1){
                     temp[i][j] += (land[i][j+1] == tile) ? 1 : 0; // right
                 }
-                System.out.print(temp[i][j]);
             }
-            System.out.println();
         }
-        System.out.println("done");
         return temp;
     }
     
@@ -141,11 +137,8 @@ public class CelularAutomata extends JFrame{
                 if(i < land.length - 1){
                     temp[i][j] += (land[i+1][j] == tile) ? 1 : 0; // bottom
                 }
-                System.out.print(temp[i][j]);
             }
-            System.out.println();
         }
-        System.out.println("done");
         return temp;
     }
     
@@ -178,11 +171,8 @@ public class CelularAutomata extends JFrame{
                 if(i<land.length - 1){
                     temp[i][j] += land[i+1][j]; // bottom
                 }
-                System.out.print(temp[i][j]);
             }
-            System.out.println();
         }
-        System.out.println("done");
         return temp;
     }
     
@@ -270,6 +260,4 @@ public class CelularAutomata extends JFrame{
             }
         }
     }
-    
-    
 }
