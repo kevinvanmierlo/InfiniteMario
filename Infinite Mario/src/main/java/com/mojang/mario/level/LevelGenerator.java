@@ -92,11 +92,11 @@ public class LevelGenerator
             for (int y = 0; y < height; y++)
             {
 //                System.out.println("x: " + x + ", y: " + y + ", value: " + generatedLevel[x][y]);
-                if(generatedLevel[x][y] == 0)
-                {
+                if(generatedLevel[x][y] == 0) {
                     level.setBlock(x, y, (byte)(0));
-                }else
-                {
+                } else if(generatedLevel[x][y] == 2) {
+                    level.setBlock(x, y, (byte)(1 + 2 * 16));
+                } else {
                     level.setBlock(x, y, (byte)(1 + 8 * 16));
                 }
 //                if (y >= floor)

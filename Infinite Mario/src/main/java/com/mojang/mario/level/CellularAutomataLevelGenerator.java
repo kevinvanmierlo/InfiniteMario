@@ -22,6 +22,9 @@ public class CellularAutomataLevelGenerator
         this.height = height;
         generateLand();
         processN(10);
+        makeFloor();
+        placeCoins();
+        landCleanUp();
     }
     
     public int[][] getLand()
@@ -38,6 +41,51 @@ public class CellularAutomataLevelGenerator
             land = updateLand(land);
         }
         //*/
+    }
+    
+    /*
+     * code to make the first 20 blocks floor
+     */
+    private void makeFloor(){
+        int count = 0;
+        int floorHeight = 0;
+        
+        for(int i = 0; (i < land.length && i < 20); i++){
+            for(int j = 0; j < land[0].length; j++){
+                if(land[i][j] == 1){
+                    floorHeight += i;
+                    count++;
+                }
+            }
+        }
+        
+        floorHeight = floorHeight/count + 5;
+        if(floorHeight > (land[0].length - 1)){
+            floorHeight = land[0].length-2;
+        }
+        
+        for(int i = 0; (i < land.length && i < 20); i++){
+            for(int j = 0; j < land[0].length; j++){
+                if(j == floorHeight){
+                    land[i][j] = 1;
+                } else {
+                    land[i][j] = 0;
+                }
+            }
+        }
+    }
+    
+    public void placeCoins() {
+        int[][] topBottom = betweenLand(land, 1);
+        for(int i = 0; i < land.length - 1; i++){
+            for(int j = 0; j < land[0].length -1; j++){
+                if(land[i][j] == 1 && topBottom[i][j] == 0){
+                    if(j < land[0].length - 2 && land[i][j+2] == 1){
+                         land[i][j] = 2;
+                    }
+                }
+            }
+        }
     }
     
     private int[][] nextToLand(int[][] land, int tile){

@@ -75,6 +75,7 @@ public class CelularAutomata extends JFrame{
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
         test.placeCoins();
+        test.makeFloor();
         test.landCleanUp();
         test.repaint();
     }
@@ -117,7 +118,7 @@ public class CelularAutomata extends JFrame{
                 temp[i][j] = 0;
                 if(j>0){
                     temp[i][j] += (land[i][j-1] == tile) ? 1 : 0; // left
-                                    }
+                }
                 if(j < land[0].length - 1){
                     temp[i][j] += (land[i][j+1] == tile) ? 1 : 0; // right
                 }
@@ -229,8 +230,12 @@ public class CelularAutomata extends JFrame{
         int[][] topBottom = betweenLand(land,1);
         int[][] neighboors = nextToLand(land,1);
         
+        
+        
         for(int i = 0; i < land.length-1; i++){
             for(int j = 0; j < land[0].length-1; j++){
+                
+                
                 //*
                 // rule foor (when air is enclosed in blocks fill the air)
                 if(land[i][j] == 0 && topBottom[i][j] == 2 ){//&& ((i > 0 && topBottom[i-1][j] == 1) || (i < (land.length - 2) && topBottom[i+1][j] == 1))){
@@ -248,7 +253,41 @@ public class CelularAutomata extends JFrame{
             }
         }
         
+        
         return temp;
+    }
+    
+    /*
+     * code to make the first 20 blocks floor
+     */
+    private void makeFloor(){
+        int count = 0;
+        int floorHeight = 0;
+        
+        for(int j = 0; (j < land[0].length && j < 20); j++){
+            for(int i = 0; i < land.length; i++){
+                if(land[i][j] == 1){
+                    floorHeight += i;
+                    count++;
+                }
+            }
+        }
+        
+        
+        floorHeight = floorHeight/count + 5;
+        if(floorHeight > land.length - 1){
+            floorHeight = land.length - 2;
+        }
+        
+        for(int j = 0; (j < land[0].length && j < 20); j++){
+            for(int i = 0; i < land.length; i++){
+                if(i == floorHeight){
+                    land[i][j] = 1;
+                } else {
+                    land[i][j] = 0;
+                }
+            }
+        }
     }
     
     private void generateLand(){
