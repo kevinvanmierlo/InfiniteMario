@@ -89,13 +89,13 @@ public class LevelGenerator
         {
             for (int y = 0; y < height; y++)
             {
-                System.out.println("x: " + x + ", y: " + y + ", value: " + generatedLevel[x][y]);
+//                System.out.println("x: " + x + ", y: " + y + ", value: " + generatedLevel[x][y]);
                 if(generatedLevel[x][y] == 0)
                 {
-                    level.setBlock(x, y, (byte)(0 + 0 * 16));
+                    level.setBlock(x, y, (byte)(0));
                 }else
                 {
-                    level.setBlock(x, y, (byte)(2 + 8 * 16));
+                    level.setBlock(x, y, (byte)(1 + 8 * 16));
                 }
 //                if (y >= floor)
 //                {
@@ -103,7 +103,6 @@ public class LevelGenerator
 //                }
             }
         }
-        System.out.println("I'm out the loop!");
 
 //        if (type == LevelGenerator.TYPE_CASTLE || type == LevelGenerator.TYPE_UNDERGROUND)
 //        {
