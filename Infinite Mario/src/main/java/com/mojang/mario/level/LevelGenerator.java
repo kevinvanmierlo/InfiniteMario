@@ -76,6 +76,8 @@ public class LevelGenerator
 //            length += buildzone;
 //            System.out.println("buildzone " + buildzone);
 //        }
+        
+        length += width - 64;
 
         int floor = height - 1 - random.nextInt(4);
 
@@ -85,7 +87,7 @@ public class LevelGenerator
         CellularAutomataLevelGenerator generator = new CellularAutomataLevelGenerator(width, height);
         int[][] generatedLevel = generator.getLand();
         
-        for (int x = length; x < level.width; x++)
+        for (int x = 0; x < level.width; x++)
         {
             for (int y = 0; y < height; y++)
             {
