@@ -148,6 +148,17 @@ public class CellularAutomataLevelGenerator
                         temp[i][j+1] = 0;
                     }
                 }
+                
+                // rule six (if a hole is equal to or more than 3 wide fill up three spaces)
+                // TODO j == height needs to be j == floor
+                if(j == height - 1 && land[i][j] == 0 && neighboors[i][j] == 0)
+                {
+                    temp[i][j] = 1;
+                    if(i != width - 1)
+                        temp[i+1][j] = 1;
+                    else if(i != 0)
+                        temp[i-1][j] = 1;
+                }
             }
         }
         return temp;
