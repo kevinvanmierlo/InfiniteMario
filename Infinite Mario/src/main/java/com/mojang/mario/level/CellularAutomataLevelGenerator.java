@@ -22,9 +22,10 @@ public class CellularAutomataLevelGenerator
         this.height = height;
         generateLand();
         processN(10);
-        makeFloor();
         placeCoins();
         landCleanUp();
+        createWalls();
+        makeFloor();
     }
     
     public int[][] getLand()
@@ -61,12 +62,14 @@ public class CellularAutomataLevelGenerator
         
         floorHeight = floorHeight/count + 5;
         if(floorHeight > (land[0].length - 1)){
-            floorHeight = land[0].length-2;
+            floorHeight = land[0].length - 2;
         }
         
         for(int i = 0; (i < land.length && i < 20); i++){
             for(int j = 0; j < land[0].length; j++){
-                if(j == floorHeight){
+                if(j > floorHeight){
+                    land[i][j] = 3;
+                } else if(j == floorHeight){
                     land[i][j] = 1;
                 } else {
                     land[i][j] = 0;
@@ -234,10 +237,60 @@ public class CellularAutomataLevelGenerator
                     temp[i][j] = 0;
                 }
                 //*/
+                
+                //*
+                // place wall below platform if platform is 2 thick
+                if(land[i][j] == 1 && (topBottom[i][j] > 0 || land[i][j] == 3)){
+                    if(j > 0 && (land[i][j-1] == 3 || land[i][j-1] == 1)){
+                        land[i][j] = 3;
+                    }
+                }
+                if(land[i][j] == 0 && j > 0 && land[i][j-1] == 3){
+                    land[i][j] = 3;
+                }
+                //*/
             }
         }
         
         return temp;
+    }
+    
+    private void createWalls(){
+        for(int i = 0; i < land.length; i++){
+            for(int j = 0; j < land[0].length; j++){
+                //*
+                // place wall below platform in bottom x blocks of level if the floor has only air below
+                if(j > (land[0].length - 10) && land[i][j] == 1){
+                    if(checkAir(i,j)){
+                        setWall(i,j);
+                    }
+                }
+                //*/
+            }
+        }         
+    }
+    
+    /*
+     * Helper Function check for only air below a block
+     */
+    private boolean checkAir(int i, int j){
+        boolean result = true;
+        for(int x = (j+1); x < land[0].length; x++){
+            if(land[i][x] == 1){
+                result = false;
+            }
+        }
+        
+        return result;
+    }
+    
+    /*
+     * Helper Function place wall below block till botom of world
+     */
+    private void setWall(int i, int j){
+        for(int x = (j+1); x < land[0].length; x++){
+            land[i][x] = 3;
+        }
     }
     
     private void generateLand(){

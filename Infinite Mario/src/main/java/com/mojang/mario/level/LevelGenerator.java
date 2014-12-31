@@ -87,18 +87,50 @@ public class LevelGenerator
         CellularAutomataLevelGenerator generator = new CellularAutomataLevelGenerator(width, height);
         int[][] generatedLevel = generator.getLand();
         
+        int blockShift = 0;
+        switch(type){
+            case LevelGenerator.TYPE_OVERGROUND:
+                blockShift = 0;
+            break;
+            case LevelGenerator.TYPE_CASTLE:
+                blockShift = 4;
+            break;
+            case LevelGenerator.TYPE_UNDERGROUND:
+                blockShift = 8;
+            break;
+        }
+        
         for (int x = 0; x < level.width; x++)
         {
             for (int y = 0; y < height; y++)
             {
 //                System.out.println("x: " + x + ", y: " + y + ", value: " + generatedLevel[x][y]);
-                if(generatedLevel[x][y] == 0) {
-                    level.setBlock(x, y, (byte)(0));
-                } else if(generatedLevel[x][y] == 2) {
-                    level.setBlock(x, y, (byte)(1 + 2 * 16));
-                } else {
-                    level.setBlock(x, y, (byte)(1 + 8 * 16));
+                switch(generatedLevel[x][y]){
+                    case 0: // air (0 + 0 * 16)
+                        level.setBlock(x, y, (byte)(0));
+                    break;
+                    case 1: // floor (1 + 8 * 16) (fun is cannons (blockShift + 14 + 0 * 16)
+                        level.setBlock(x, y, (byte)(blockShift + 1 + 8 * 16));
+                    break;
+                    case 2: // coin (0 + 2 * 16)
+                        level.setBlock(x, y, (byte)(0 + 2 * 16));
+                    break;
+                    case 3: // wall (5 + 9 * 16)
+                        level.setBlock(x, y, (byte)(blockShift + 5 + 9 * 16));
+                    break;
                 }
+                /*
+                if(generatedLevel[x][y] == 0) { // air
+                    level.setBlock(x, y, (byte)(0));
+                } else if(generatedLevel[x][y] == 2) { // coin
+                    level.setBlock(x, y, (byte)(1 + 2 * 16));
+                } else if(generatedLevel[x][y] == 1) { // floor (1 + 8 * 16)
+                    level.setBlock(x, y, (byte)(5 + 11 * 16));
+                } else if(generatedLevel[x][y] == 3){ // wall under floor walktrue
+                    level.setBlock(x, y, (byte)(5 + 9 * 16));
+                }
+                //*/
+                
 //                if (y >= floor)
 //                {
 //                    level.setBlock(x, y, (byte) (1 + 9 * 16));

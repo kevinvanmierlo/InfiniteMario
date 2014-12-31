@@ -40,6 +40,8 @@ public class CelularAutomata extends JFrame{
                                 g.setColor(Color.WHITE);
                             } else if(land[i][j] == 2){
                                 g.setColor(Color.YELLOW);
+                            } else if(land[i][j] == 3){
+                                g.setColor(Color.CYAN);
                             }
                             g.fillRect(blockSize*j, blockSize*i, blockSize, blockSize);
                         }
@@ -75,8 +77,9 @@ public class CelularAutomata extends JFrame{
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
         test.placeCoins();
-        test.makeFloor();
         test.landCleanUp();
+        test.createWalls();
+        test.makeFloor();
         test.repaint();
     }
     
@@ -232,7 +235,7 @@ public class CelularAutomata extends JFrame{
         
         
         
-        for(int i = 0; i < land.length-1; i++){
+        for(int i = 0; i < land.length; i++){
             for(int j = 0; j < land[0].length-1; j++){
                 
                 
@@ -246,15 +249,42 @@ public class CelularAutomata extends JFrame{
                 //*/
                 
                 //*
-                if(land[i][j] == 1 && neighboors[i][j] == 0){
+                if((land[i][j] == 1 || land[i][j] == 3) && neighboors[i][j] == 0){
                     temp[i][j] = 0;
                 }
                 //*/
+                
+                //*
+                // place wall below platform if platform is 2 thick
+                if(land[i][j] == 1 && (topBottom[i][j] > 0 || land[i][j] == 3)){
+                    if(i > 0 && (land[i-1][j] == 3 || land[i-1][j] == 1)){
+                        land[i][j] = 3;
+                    }
+                }
+                if(land[i][j] == 0 && i > 0 && land[i-1][j] == 3){
+                    land[i][j] = 3;
+                }
+                //*/
+                
             }
         }
         
-        
         return temp;
+    }
+    
+    private void createWalls(){
+        for(int i = 0; i < land.length; i++){
+            for(int j = 0; j < land[0].length; j++){
+                //*
+                // place wall below platform in bottom x blocks of level if the floor has only air below
+                if(i > (land.length - 10) && land[i][j] == 1){
+                    if(checkAir(i,j)){
+                        setWall(i,j);
+                    }
+                }
+                //*/
+            }
+        }         
     }
     
     /*
@@ -281,12 +311,37 @@ public class CelularAutomata extends JFrame{
         
         for(int j = 0; (j < land[0].length && j < 20); j++){
             for(int i = 0; i < land.length; i++){
-                if(i == floorHeight){
+                if(i > floorHeight){
+                    land[i][j] = 3;
+                }else if(i == floorHeight){
                     land[i][j] = 1;
                 } else {
                     land[i][j] = 0;
                 }
             }
+        }
+    }
+    
+    /*
+     * Helper Function check for only air below a block
+     */
+    private boolean checkAir(int i, int j){
+        boolean result = true;
+        for(int x = (i+1); x < land.length; x++){
+            if(land[x][j] == 1){
+                result = false;
+            }
+        }
+        
+        return result;
+    }
+    
+    /*
+     * Helper Function place wall below block till botom of world
+     */
+    private void setWall(int i, int j){
+        for(int x = (i+1); x < land.length; x++){
+            land[x][j] = 3;
         }
     }
     
