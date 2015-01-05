@@ -297,7 +297,7 @@ public class CellularAutomataLevelGenerator
         if(land != null){
             for(int i = 0; i < width; i++){
                 for(int j = 0; j < height; j++){
-                    land[i][j] = ((Math.random() + ((double)j/(height*1.7))) > 0.95 ? 1 : 0);
+                    land[i][j] = ((Math.random() + ((double)j/(height*1.7))) > 0.90 ? 1 : 0);
                 }
             }
         }
