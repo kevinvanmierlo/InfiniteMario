@@ -25,6 +25,7 @@ public class CellularAutomataLevelGenerator
         placeCoins();
         landCleanUp();
         createWalls();
+        makePlatforms();
         makeFloor();
     }
     
@@ -86,6 +87,21 @@ public class CellularAutomataLevelGenerator
                     if(j < land[0].length - 2 && land[i][j+2] == 1){
                          land[i][j] = 2;
                     }
+                }
+            }
+        }
+    }
+    
+    private void makePlatforms()
+    {
+        int[][] topBottom = betweenLand(land, 3);
+        for(int i = 0; i < width-1; i++)
+        {
+            for(int j = 0; j < height - 3; j++)
+            {
+                if(topBottom[i][j] == 0 && land[i][j] == 1)
+                {
+                    land[i][j] = 4;
                 }
             }
         }
@@ -159,25 +175,35 @@ public class CellularAutomataLevelGenerator
     
     private int[][] updateLand(int[][] land){
         //int[][] neighboors = neighboorsLand(land);
-        int[][] neighboors = nextToLand(land, 1);
+        int[][] nextTo = nextToLand(land, 1);
         int[][] topBottom = betweenLand(land, 1);
         int[][] temp = land;
-        for(int i = 0; i < width; i++){
-            for(int j = 0; j < height; j++){
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
                 //rule one (no neighboors become air)
-                if(neighboors[i][j] == 0){
+                if(nextTo[i][j] == 0)
+                {
                     temp[i][j] = 0;
-                } else if(neighboors[i][j] == 2){ //rule two (block needs to be at least 3)
+                } else if(nextTo[i][j] == 2)
+                { //rule two (block needs to be at least 3)
                         temp[i][j] = 1;
-                } else {
+                } else 
+                {
                     //*
-                    if(land[i][j] == 1){
-                        if(neighboors[i][j] == 1){
-                            if(i > 0 && neighboors[i-1][j] == 2){
+                    if(land[i][j] == 1)
+                    {
+                        if(nextTo[i][j] == 1)
+                        {
+                            if(i > 0 && nextTo[i-1][j] == 2)
+                            {
                                 temp[i][j] = 1;
-                            } else if(i < land[0].length-1 && neighboors[i+1][j] == 2){
+                            } else if(i < width-1 && nextTo[i+1][j] == 2)
+                            {
                                 temp[i][j] = 1;
-                            } else {
+                            } else 
+                            {
                                 temp[i][j] = 0;
                             }
                         }
@@ -185,30 +211,23 @@ public class CellularAutomataLevelGenerator
                     //*/
                 }
                 
-                // rule tree (when a bock has no block above and below look at block above it that one has two topbottom neighboors.
+                // rule three (when a bock has no block above and below look at block above it that one has two topbottom neighboors.
                 // if it has remove the origional block)
-                if(land[i][j] == 1 && topBottom[i][j] == 0){
-                    if(j > 0 && topBottom[i][j-1] == 2){
+                if(land[i][j] == 1 && topBottom[i][j] == 0)
+                {
+                    if(j > 0 && topBottom[i][j-1] == 2)
+                    {
                          temp[i][j] = 0;
                     }
                 }
                 
                 // rule five (if air has 1 neighboor below with a solid neighboor then remove this first neighboor below the air)
-                if(land[i][j] == 0 && topBottom[i][j] == 1){
-                    if(j > land.length-1 && land[i][j+1] == 1 && topBottom[i][j+1] == 1){
+                if(land[i][j] == 0 && topBottom[i][j] == 1)
+                {
+                    if(j > height-1 && land[i][j+1] == 1 && topBottom[i][j+1] == 1)
+                    {
                         temp[i][j+1] = 0;
                     }
-                }
-                
-                // rule six (if a hole is equal to or more than 3 wide fill up three spaces)
-                // TODO j == height needs to be j == floor
-                if(j == height - 1 && land[i][j] == 0 && neighboors[i][j] == 0)
-                {
-                    temp[i][j] = 1;
-                    if(i != width - 1)
-                        temp[i+1][j] = 1;
-                    else if(i != 0)
-                        temp[i-1][j] = 1;
                 }
             }
         }

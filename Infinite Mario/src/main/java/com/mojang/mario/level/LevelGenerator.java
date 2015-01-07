@@ -109,14 +109,18 @@ public class LevelGenerator
                     case 0: // air (0 + 0 * 16)
                         level.setBlock(x, y, (byte)(0));
                     break;
-                    case 1: // floor (1 + 8 * 16) (fun is cannons (blockShift + 14 + 0 * 16)
-                        level.setBlock(x, y, (byte)(blockShift + 1 + 8 * 16));
+                    case 1: // floor (5 + 8 * 16) (fun is cannons (blockShift + 14 + 0 * 16)
+                        level.setBlock(x, y, (byte)(blockShift + 5 + 8 * 16));
                     break;
                     case 2: // coin (0 + 2 * 16)
                         level.setBlock(x, y, (byte)(0 + 2 * 16));
                     break;
-                    case 3: // wall (5 + 9 * 16)
+                    case 3: // wall (blockShift + 5 + 9 * 16)
                         level.setBlock(x, y, (byte)(blockShift + 5 + 9 * 16));
+                    break;
+                    case 4: // special Block (5 + 1 * 16)
+                        
+                        level.setBlock(x, y, (byte)(0 + random.nextInt(3) + 1 * 16));
                     break;
                 }
                 /*

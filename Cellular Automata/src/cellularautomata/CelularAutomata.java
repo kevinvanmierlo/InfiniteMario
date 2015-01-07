@@ -248,10 +248,12 @@ public class CelularAutomata extends JFrame
         int[][] topBottom = betweenLand(land, 3);
         for(int i = 0; i < width-1; i++)
         {
-            for(int j = 0; j < height -3; j++)
+            for(int j = 0; j < height - 3; j++)
             {
                 if(topBottom[i][j] == 0 && land[i][j] == 1)
+                {
                     land[i][j] = 4;
+                }
             }
         }
     }
