@@ -32,19 +32,33 @@ public class CelularAutomata extends JFrame
         worldPanel = new JPanel() 
         {
             @Override
-            public void paint(Graphics g){
-                if(land != null){
-                    for(int i = 0; i < width; i++){
-                        for(int j = 0; j < height; j++){
-                            if(land[i][j] == 1){
-                                g.setColor(Color.BLUE);
-                            } else if(land[i][j] == 0){
-                                g.setColor(Color.WHITE);
-                            } else if(land[i][j] == 2){
-                                g.setColor(Color.YELLOW);
-                            } else if(land[i][j] == 3){
-                                g.setColor(Color.CYAN);
+            public void paint(Graphics g)
+            {
+                if(land != null)
+                {
+                    for(int i = 0; i < width; i++)
+                    {
+                        for(int j = 0; j < height; j++)
+                        {
+                            switch(land[i][j])
+                            {
+                                case 0:
+                                    g.setColor(Color.WHITE);
+                                    break;
+                                case 1:
+                                    g.setColor(Color.BLUE);
+                                    break;
+                                case 2:
+                                    g.setColor(Color.YELLOW);
+                                    break;
+                                case 3:
+                                    g.setColor(Color.CYAN);
+                                    break;
+                                case 4:
+                                    g.setColor(Color.PINK);
+                                    break;
                             }
+                            
                             g.fillRect(blockSize*i, blockSize*j, blockSize, blockSize);
                         }
                     }
@@ -82,6 +96,7 @@ public class CelularAutomata extends JFrame
         test.placeCoins();
         test.landCleanUp();
         test.createWalls();
+        test.makePlatforms();
         test.makeFloor();
         test.repaint();
     }
@@ -210,7 +225,7 @@ public class CelularAutomata extends JFrame
         return temp;
     }
     
-    public void placeCoins() 
+    private void placeCoins() 
     {
         int[][] topBottom = betweenLand(land, 1);
         for(int i = 0; i < width - 1; i++)
@@ -224,6 +239,19 @@ public class CelularAutomata extends JFrame
                          land[i][j] = 2;
                     }
                 }
+            }
+        }
+    }
+    
+    private void makePlatforms()
+    {
+        int[][] topBottom = betweenLand(land, 3);
+        for(int i = 0; i < width-1; i++)
+        {
+            for(int j = 0; j < height -3; j++)
+            {
+                if(topBottom[i][j] == 0 && land[i][j] == 1)
+                    land[i][j] = 4;
             }
         }
     }
