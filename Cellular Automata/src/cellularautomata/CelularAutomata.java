@@ -256,7 +256,6 @@ public class CelularAutomata extends JFrame
     {
         int[][] topBottom = betweenLand(land, 3);
         int[][] topBottomFloor = betweenLand(land, 1);
-        int[][] nextTo = nextToLand(land, 1);
         for(int i = 0; i < width-1; i++)
         {
             for(int j = 0; j < height - 3; j++)
@@ -275,10 +274,6 @@ public class CelularAutomata extends JFrame
                             x--;
                         }
                     }
-//                    else if(i > 0 && i < width - 1 && land[i-1][j] == 4 && !(topBottom[i+1][j] == 0 && topBottomFloor[i+1][j] == 0 && land[i+1][j] == 1) && land[i+1][j] == 1)
-//                    {
-//                        land[i][j] = 0;
-//                    }
                     else
                     {
                         land[i][j] = 4;

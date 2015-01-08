@@ -118,8 +118,10 @@ public class LevelGenerator
                     case 3: // wall (blockShift + 5 + 9 * 16)
                         level.setBlock(x, y, (byte)(blockShift + 5 + 9 * 16));
                     break;
-                    case 4: // special Block (5 + 1 * 16)
-                        
+                    case 4: // "?" Block (0 + random.nextInt(3) + 1 * 16)
+                        level.setBlock(x, y, (byte)(4 + random.nextInt(3) + 1 * 16));
+                    break;
+                    case 5: // gold Block (0 + random.nextInt(3) + 1 * 16)
                         level.setBlock(x, y, (byte)(0 + random.nextInt(3) + 1 * 16));
                     break;
                 }

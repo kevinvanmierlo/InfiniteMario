@@ -26,6 +26,8 @@ public class CellularAutomataLevelGenerator
         landCleanUp();
         createWalls();
         makePlatforms();
+        makeBreakablePlatforms();
+        placeMissingWalls();
         makeFloor();
     }
     
@@ -92,16 +94,55 @@ public class CellularAutomataLevelGenerator
         }
     }
     
-    private void makePlatforms()
+        private void makePlatforms()
     {
         int[][] topBottom = betweenLand(land, 3);
+        int[][] topBottomFloor = betweenLand(land, 1);
         for(int i = 0; i < width-1; i++)
         {
             for(int j = 0; j < height - 3; j++)
             {
-                if(topBottom[i][j] == 0 && land[i][j] == 1)
+                if(topBottom[i][j] == 0 && topBottomFloor[i][j] == 0 && land[i][j] == 1)
                 {
-                    land[i][j] = 4;
+                    if(i > 0 && land[i-1][j] == 1)
+                    {
+//                        land[i][j] = 1;
+                    }else if(i < width - 1 && !(topBottom[i+1][j] == 0 && topBottomFloor[i+1][j] == 0) && land[i+1][j] == 1)
+                    {
+                        int x = i-1;
+                        while(x>=0 && land[x][j] == 4)
+                        {
+                            land[x][j] = 1;
+                            x--;
+                        }
+                    }
+                    else
+                    {
+                        land[i][j] = 4;
+                    }
+                }
+            }
+        }
+    }
+    
+    private void makeBreakablePlatforms()
+    {
+        int[][] nextTo = nextToLand(land, 4);
+        
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(land[i][j] == 4 && i > 1 && i < width - 1 && land[i-1][j] == 5)
+                {
+                    land[i][j] = 5;
+                }else if(land[i][j] == 4 && i > 1 && i < width - 1 && land[i][j] == 4 && nextTo[i][j] == 2 && nextTo[i-1][j] == 2 && nextTo[i+1][j] == 2)
+                {
+                    land[i-2][j] = 5;
+                    land[i-1][j] = 5;
+                    land[i][j] = 5;
+                    land[i+1][j] = 5;
+                    land[i+2][j] = 5;
                 }
             }
         }
@@ -229,6 +270,11 @@ public class CellularAutomataLevelGenerator
                         temp[i][j+1] = 0;
                     }
                 }
+                
+                if(j <= 3)
+                {
+                    temp[i][j] = 0;
+                }
             }
         }
         return temp;
@@ -287,6 +333,24 @@ public class CellularAutomataLevelGenerator
                 //*/
             }
         }         
+    }
+    
+    /*
+     * Create the walls under the ground platforms that are still floating in the air
+     * also make sure the walls continue to the bottom of the screen
+     */
+    private void placeMissingWalls()
+    {
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(j < height - 1 && (land[i][j] == 1 || land[i][j] == 3) && (land[i][j+1] != 1 && land[i][j+1] != 3))
+                {
+                    setWall(i, j);
+                }
+            }
+        }
     }
     
     /*
