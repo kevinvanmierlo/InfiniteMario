@@ -57,6 +57,8 @@ public class CelularAutomata extends JFrame
                                 case 4:
                                     g.setColor(Color.PINK);
                                     break;
+                                case 5:
+                                    g.setColor(Color.MAGENTA);
                             }
                             
                             g.fillRect(blockSize*i, blockSize*j, blockSize, blockSize);
@@ -97,6 +99,8 @@ public class CelularAutomata extends JFrame
         test.landCleanUp();
         test.createWalls();
         test.makePlatforms();
+        test.makeBreakablePlatforms();
+        test.placeMissingWalls();
         test.makeFloor();
         test.repaint();
     }
@@ -177,6 +181,11 @@ public class CelularAutomata extends JFrame
                         temp[i][j+1] = 0;
                     }
                 }
+                
+                if(j <= 3)
+                {
+                    temp[i][j] = 0;
+                }
             }
         }
         return temp;
@@ -246,13 +255,57 @@ public class CelularAutomata extends JFrame
     private void makePlatforms()
     {
         int[][] topBottom = betweenLand(land, 3);
+        int[][] topBottomFloor = betweenLand(land, 1);
+        int[][] nextTo = nextToLand(land, 1);
         for(int i = 0; i < width-1; i++)
         {
             for(int j = 0; j < height - 3; j++)
             {
-                if(topBottom[i][j] == 0 && land[i][j] == 1)
+                if(topBottom[i][j] == 0 && topBottomFloor[i][j] == 0 && land[i][j] == 1)
                 {
-                    land[i][j] = 4;
+                    if(i > 0 && land[i-1][j] == 1)
+                    {
+//                        land[i][j] = 1;
+                    }else if(i < width - 1 && !(topBottom[i+1][j] == 0 && topBottomFloor[i+1][j] == 0) && land[i+1][j] == 1)
+                    {
+                        int x = i-1;
+                        while(x>=0 && land[x][j] == 4)
+                        {
+                            land[x][j] = 1;
+                            x--;
+                        }
+                    }
+//                    else if(i > 0 && i < width - 1 && land[i-1][j] == 4 && !(topBottom[i+1][j] == 0 && topBottomFloor[i+1][j] == 0 && land[i+1][j] == 1) && land[i+1][j] == 1)
+//                    {
+//                        land[i][j] = 0;
+//                    }
+                    else
+                    {
+                        land[i][j] = 4;
+                    }
+                }
+            }
+        }
+    }
+    
+    private void makeBreakablePlatforms()
+    {
+        int[][] nextTo = nextToLand(land, 4);
+        
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(land[i][j] == 4 && i > 1 && i < width - 1 && land[i-1][j] == 5)
+                {
+                    land[i][j] = 5;
+                }else if(land[i][j] == 4 && i > 1 && i < width - 1 && land[i][j] == 4 && nextTo[i][j] == 2 && nextTo[i-1][j] == 2 && nextTo[i+1][j] == 2)
+                {
+                    land[i-2][j] = 5;
+                    land[i-1][j] = 5;
+                    land[i][j] = 5;
+                    land[i+1][j] = 5;
+                    land[i+2][j] = 5;
                 }
             }
         }
@@ -309,11 +362,11 @@ public class CelularAutomata extends JFrame
     {
         for(int i = 0; i < width; i++)
         {
-            for(int j = 0; j < height; j++)
+            for(int j = height - 7; j < height; j++)
             {
                 //*
                 // place wall below platform in bottom x blocks of level if the floor has only air below
-                if(j > (height - 10) && land[i][j] == 1)
+                if(land[i][j] == 1)
                 {
                     if(checkAir(i,j))
                     {
@@ -323,6 +376,20 @@ public class CelularAutomata extends JFrame
                 //*/
             }
         }         
+    }
+    
+    private void placeMissingWalls()
+    {
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(j < height - 1 && (land[i][j] == 1 || land[i][j] == 3) && (land[i][j+1] != 1 && land[i][j+1] != 3))
+                {
+                    setWall(i, j);
+                }
+            }
+        }
     }
     
     /*
@@ -347,9 +414,12 @@ public class CelularAutomata extends JFrame
      */
     private void setWall(int i, int j)
     {
-        for(int x = (j+1); x < height; x++)
+        for(int y = (j+1); y < height; y++)
         {
-            land[i][x] = 3;
+            if(land[i][y] != 1)
+            {
+                land[i][y] = 3;
+            }
         }
     }
     
