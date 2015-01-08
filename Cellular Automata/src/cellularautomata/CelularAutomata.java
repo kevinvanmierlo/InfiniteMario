@@ -20,6 +20,7 @@ public class CelularAutomata extends JFrame
     private final String OS;    
     private final JPanel worldPanel;
     private int[][] land;
+    private int[] floor;
     private final int width = 1000;
     private final int height = 15;
     private int blockSize = 10;
@@ -29,6 +30,7 @@ public class CelularAutomata extends JFrame
         OS = System.getProperty("os.name").toLowerCase();
         
         this.land = new int[this.width][this.height];
+        this.floor = new int[this.width];
         worldPanel = new JPanel() 
         {
             @Override
@@ -46,7 +48,10 @@ public class CelularAutomata extends JFrame
                                     g.setColor(Color.WHITE);
                                     break;
                                 case 1:
-                                    g.setColor(Color.BLUE);
+                                    if(floor[i] == j)
+                                        g.setColor(Color.GREEN);
+                                    else
+                                        g.setColor(Color.BLUE);
                                     break;
                                 case 2:
                                     g.setColor(Color.YELLOW);
@@ -59,6 +64,7 @@ public class CelularAutomata extends JFrame
                                     break;
                                 case 5:
                                     g.setColor(Color.MAGENTA);
+                                    break;
                             }
                             
                             g.fillRect(blockSize*i, blockSize*j, blockSize, blockSize);
@@ -95,13 +101,13 @@ public class CelularAutomata extends JFrame
     {
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
-        test.placeCoins();
-        test.landCleanUp();
-        test.createWalls();
-        test.makePlatforms();
-        test.makeBreakablePlatforms();
-        test.placeMissingWalls();
-        test.makeFloor();
+//        test.placeCoins();
+//        test.landCleanUp();
+//        test.createWalls();
+//        test.makePlatforms();
+//        test.makeBreakablePlatforms();
+//        test.placeMissingWalls();
+//        test.makeFloor();
         test.repaint();
     }
     
@@ -111,7 +117,8 @@ public class CelularAutomata extends JFrame
         for(int i = 0;i < n; i++)
         {
             //land = process(land);
-            //generateLand();    
+            //generateLand();   
+            getFloor();
             land = updateLand(land);
             
             try {
@@ -122,6 +129,25 @@ public class CelularAutomata extends JFrame
             repaint();
         }
         //*/
+    }
+    
+    private void getFloor()
+    {
+        for(int i = 0; i < width; i++)
+        {
+            int j = height - 1;
+            while(land[i][j] != 1 && j > 0)// && j > (height * (3/5)))
+            {
+                j--;
+            }
+            if(j >0)//<= (height * (3/5)))
+            {
+                floor[i] = j;
+            }else
+            {
+                floor[i] = -1;
+            }
+        }
     }
     
     private int[][] updateLand(int[][] land)
@@ -363,7 +389,7 @@ public class CelularAutomata extends JFrame
                 // place wall below platform in bottom x blocks of level if the floor has only air below
                 if(land[i][j] == 1)
                 {
-                    if(checkAir(i,j))
+                    if(checkNoSpecificTileBelow(i,j,1))
                     {
                         setWall(i,j);
                     }
@@ -387,15 +413,35 @@ public class CelularAutomata extends JFrame
         }
     }
     
+//    private void noGapsInWalls()
+//    {
+//        for(int i = 0; i < width; i++)
+//        {
+//            for(int j = 0; j < height; j++)
+//            {
+//                if(i < width-1 && land[i][j] == 1 && land[i+1][j] == 3 && checkNoSpecificTileBelow(i, j, 1))
+//                {
+//                    int x = i + 1;
+//                    while(x < width && land[x][j] == 3)
+//                    {
+//                        land[x][j] = 1;
+//                        x++;
+//                    }
+//                }
+////                if(i>0 && land[i][j] == 1 && land[i-1][j] == 3)
+//            }
+//        }
+//    }
+    
     /*
      * Helper Function check for only air below a block
      */
-    private boolean checkAir(int i, int j)
+    private boolean checkNoSpecificTileBelow(int i, int j, int tileID)
     {
         boolean result = true;
         for(int x = (j+1); x < height; x++)
         {
-            if(land[i][x] == 1)
+            if(land[i][x] == tileID)
             {
                 result = false;
             }
