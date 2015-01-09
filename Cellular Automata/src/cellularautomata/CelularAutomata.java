@@ -104,10 +104,11 @@ public class CelularAutomata extends JFrame
         test.processN(10);
 //        test.placeCoins();
 //        test.landCleanUp();
+        test.removeDoubleBlocks();
 //        test.createWalls();
 //        test.makePlatforms();
 //        test.makeBreakablePlatforms();
-//        test.placeMissingWalls();
+        test.placeMissingWalls();
 //        test.makeFloor();
         test.repaint();
     }
@@ -169,7 +170,6 @@ public class CelularAutomata extends JFrame
         int gapWidth = 0;
         int startGap = 0;
         
-        
         Random random = new Random();
         int beginFloorHeight = random.nextInt(5);
         beginFloorHeight = height - 1 - beginFloorHeight;
@@ -226,6 +226,7 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
+                // rule (two tiles above is air)
                 if(floor[i] - 2 == j || floor[i] - 1 == j)
                 {
                     temp[i][j] = 0;
@@ -292,6 +293,22 @@ public class CelularAutomata extends JFrame
         }
         
         return temp;
+    }
+    
+    private void removeDoubleBlocks()
+    {
+        int[][]temp = land;
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(land[i][j] == 1 && j > 0 && j < height - 1 && land[i][j+1] == 1)
+                {
+                    temp[i][j] = 0;
+                }
+            }
+        }
+        land = temp;
     }
     
     private int[][] nextToLand(int[][] land, int tile)
