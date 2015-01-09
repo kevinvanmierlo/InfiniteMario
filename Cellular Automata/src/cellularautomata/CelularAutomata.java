@@ -7,6 +7,7 @@ package cellularautomata;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -102,7 +103,7 @@ public class CelularAutomata extends JFrame
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
 //        test.placeCoins();
-//        test.landCleanUp();
+        test.landCleanUp();
 //        test.createWalls();
 //        test.makePlatforms();
 //        test.makeBreakablePlatforms();
@@ -131,6 +132,9 @@ public class CelularAutomata extends JFrame
         //*/
     }
     
+    /**
+     * Use this to get the lowest tiles (floor)
+     */
     private void getFloor()
     {
         for(int i = 0; i < width; i++)
@@ -150,12 +154,26 @@ public class CelularAutomata extends JFrame
         }
     }
     
+    /**
+     * Use this to update each tile according to our rules
+     * @param land The land containing all the tiles
+     * @return The updated land
+     */
     private int[][] updateLand(int[][] land)
     {
         //int[][] neighboors = neighboorsLand(land);
         int[][] nextTo = nextToLand(land, 1);
         int[][] topBottom = betweenLand(land, 1);
         int[][] temp = land;
+        
+        int gapWidth = 0;
+        int startGap = 0;
+        
+        
+        Random random = new Random();
+        int beginFloorHeight = random.nextInt(5);
+        beginFloorHeight = height - 1 - beginFloorHeight;
+        
         for(int i = 0; i < width; i++)
         {
             for(int j = 0; j < height; j++)
@@ -168,7 +186,7 @@ public class CelularAutomata extends JFrame
                 { //rule two (block needs to be at least 3)
                         temp[i][j] = 1;
                 } else 
-                {
+                { //rule two continued
                     //*
                     if(land[i][j] == 1)
                     {
@@ -199,7 +217,7 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
-                // rule five (if air has 1 neighboor below with a solid neighboor then remove this first neighboor below the air)
+                // rule four (if air has 1 neighboor below with a solid neighboor then remove this first neighboor below the air)
                 if(land[i][j] == 0 && topBottom[i][j] == 1)
                 {
                     if(j > height-1 && land[i][j+1] == 1 && topBottom[i][j+1] == 1)
@@ -208,10 +226,53 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
+                // rule (if one of the top 3 tiles become air)
                 if(j <= 3)
                 {
                     temp[i][j] = 0;
                 }
+                
+                if(i < 20)
+                {
+                    if(j == beginFloorHeight)
+                    {
+                        temp[i][j] = 1;
+                        floor[i] = j;
+                    }else
+                    {
+                        temp[i][j] = 0;
+                    }
+                }
+            }
+            
+            // rule for gaps not to wide
+            if(floor[i] != -1 && i < (width - 1))
+            {
+                if(gapWidth > 6)
+                {
+                    temp[startGap][floor[startGap-1]] = 1;
+                    floor[startGap] = floor[startGap-1];
+                    temp[i][floor[i+1]] = 1;
+                    floor[i] = floor[i+1];
+                }
+                gapWidth = 0;
+            } else 
+            {
+                if(gapWidth == 0)
+                {
+                    startGap = i;
+                }
+                gapWidth += 1;
+            }
+            // end gap rule
+            
+            // rule (if next floor is more than 3 tiles up it should be lowered)
+            if(i < width - 1 && floor[i] != -1 && floor[i+1] != -1 && (floor[i] - floor[i+1]) > 3)
+            {
+                int newFloorHeight = (floor[i] - floor[i+1]) - 3;
+                temp[i+1][floor[i+1]] = 0;
+                floor[i+1] += newFloorHeight;
+                temp[i+1][floor[i+1]] = 1;
             }
         }
         return temp;
