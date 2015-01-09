@@ -5,6 +5,7 @@
  */
 package com.mojang.mario.level;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -40,6 +41,7 @@ public class CellularAutomataLevelGenerator
         generatePlatforms();
         makeBreakablePlatforms();
         placeMissingWalls();
+        fixWalls();
     }
     
     public int[][] getLand()
@@ -365,6 +367,68 @@ public class CellularAutomataLevelGenerator
                 }
             }
         }
+    }
+    
+    /**
+     * This fixes the walls and puts edges on the platforms and floor
+     */
+    private void fixWalls()
+    {
+        int[][] temp = copyArray(land);
+        
+        for(int i = 19; i < width - 18; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(land[i][j] == 1)
+                {
+                    if(land[i-1][j] != 1)
+                    {
+                        if(floor[i] == j)
+                        {
+                            temp[i][j] = 10;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 14;
+                                y++;
+                            }
+                        }else
+                        {
+                            temp[i][j] = 12;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 16;
+                                y++;
+                            }
+                        }
+                    }else if(land[i+1][j] != 1)
+                    {
+                        if(floor[i] == j)
+                        {
+                            temp[i][j] = 11;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 15;
+                                y++;
+                            }
+                        }else
+                        {
+                            temp[i][j] = 13;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 17;
+                                y++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        land = temp;
     }
     
     /*
@@ -728,13 +792,34 @@ public class CellularAutomataLevelGenerator
 //        }
 //    }
 //    
-    private void generateLand(){
-        if(land != null){
-            for(int i = 0; i < width; i++){
-                for(int j = 0; j < height; j++){
+    private void generateLand()
+    {
+        if(land != null)
+        {
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
                     land[i][j] = ((Math.random() + ((double)j/(height*1.7))) > 0.90 ? 1 : 0);
                 }
             }
         }
+    }
+    
+    public int[][] copyArray(int[][] original) 
+    {
+        if (original == null) 
+        {
+            return null;
+        }
+
+        final int[][] result = new int[original.length][];
+        for (int i = 0; i < original.length; i++) 
+        {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+            // For Java versions prior to Java 6 use the next:
+            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
+        }
+        return result;
     }
 }

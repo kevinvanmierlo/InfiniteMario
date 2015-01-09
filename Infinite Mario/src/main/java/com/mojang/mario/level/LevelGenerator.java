@@ -124,6 +124,30 @@ public class LevelGenerator
                     case 5: // gold Block (0 + random.nextInt(3) + 1 * 16)
                         level.setBlock(x, y, (byte)(0 + random.nextInt(3) + 1 * 16));
                     break;
+                    case 10:
+                        level.setBlock(x, y, (byte)(blockShift + 0 + 8 * 16));
+                    break;
+                    case 11:
+                        level.setBlock(x, y, (byte)(blockShift + 2 + 8 * 16));
+                    break;
+                    case 12:
+                        level.setBlock(x, y, (byte)(blockShift + 4 + 8 * 16));
+                    break;
+                    case 13:
+                        level.setBlock(x, y, (byte)(blockShift + 6 + 8 * 16));
+                    break;
+                    case 14:
+                        level.setBlock(x, y, (byte)(blockShift + 0 + 9 * 16));
+                    break;
+                    case 15:
+                        level.setBlock(x, y, (byte)(blockShift + 2 + 9 * 16));
+                    break;
+                    case 16:
+                        level.setBlock(x, y, (byte)(blockShift + 4 + 9 * 16));
+                    break;
+                    case 17:
+                        level.setBlock(x, y, (byte)(blockShift + 6 + 9 * 16));
+                    break;
                 }
                 /*
                 if(generatedLevel[x][y] == 0) { // air

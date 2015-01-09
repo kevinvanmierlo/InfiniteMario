@@ -7,6 +7,7 @@ package cellularautomata;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.Arrays;
 import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -68,6 +69,30 @@ public class CelularAutomata extends JFrame
                                 case 5:
                                     g.setColor(Color.MAGENTA);
                                     break;
+                                case 10:
+                                    g.setColor(Color.green);
+                                break;
+                                case 11:
+                                    g.setColor(Color.green);
+                                break;
+                                case 12:
+                                    g.setColor(Color.blue);
+                                break;
+                                case 13:
+                                    g.setColor(Color.blue);
+                                break;
+                                case 14:
+                                    g.setColor(Color.CYAN);
+                                break;
+                                case 15:
+                                    g.setColor(Color.CYAN);
+                                break;
+                                case 16:
+                                    g.setColor(Color.CYAN);
+                                break;
+                                case 17:
+                                    g.setColor(Color.CYAN);
+                                break;
                             }
                             
                             g.fillRect(blockSize*i, blockSize*j, blockSize, blockSize);
@@ -108,6 +133,7 @@ public class CelularAutomata extends JFrame
         test.generatePlatforms();
         test.makeBreakablePlatforms();
         test.placeMissingWalls();
+        test.fixWalls();
         test.repaint();
     }
     
@@ -439,6 +465,68 @@ public class CelularAutomata extends JFrame
         }
     }
     
+    /**
+     * This fixes the walls and puts edges on the platforms and floor
+     */
+    private void fixWalls()
+    {
+        int[][] temp = copyArray(land);
+        
+        for(int i = 19; i < width - 18; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(land[i][j] == 1)
+                {
+                    if(land[i-1][j] != 1)
+                    {
+                        if(floor[i] == j)
+                        {
+                            temp[i][j] = 10;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 14;
+                                y++;
+                            }
+                        }else
+                        {
+                            temp[i][j] = 12;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 16;
+                                y++;
+                            }
+                        }
+                    }else if(land[i+1][j] != 1)
+                    {
+                        if(floor[i] == j)
+                        {
+                            temp[i][j] = 11;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 15;
+                                y++;
+                            }
+                        }else
+                        {
+                            temp[i][j] = 13;
+                            int y = j + 1;
+                            while(y < height && temp[i][y] == 3)
+                            {
+                                temp[i][y] = 17;
+                                y++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        land = temp;
+    }
+    
     /*
      * Helper Function check for only air below a block
      */
@@ -482,5 +570,22 @@ public class CelularAutomata extends JFrame
                 }
             }
         }
+    }
+    
+    public int[][] copyArray(int[][] original) 
+    {
+        if (original == null) 
+        {
+            return null;
+        }
+
+        final int[][] result = new int[original.length][];
+        for (int i = 0; i < original.length; i++) 
+        {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+            // For Java versions prior to Java 6 use the next:
+            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
+        }
+        return result;
     }
 }
