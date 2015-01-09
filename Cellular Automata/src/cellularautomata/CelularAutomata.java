@@ -102,14 +102,10 @@ public class CelularAutomata extends JFrame
     {
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
-//        test.placeCoins();
-//        test.landCleanUp();
         test.removeDoubleBlocks();
-//        test.createWalls();
-//        test.makePlatforms();
-//        test.makeBreakablePlatforms();
+        test.generatePlatforms();
+        test.makeBreakablePlatforms();
         test.placeMissingWalls();
-//        test.makeFloor();
         test.repaint();
     }
     
@@ -226,6 +222,15 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
+//                if(land[i][j] == 1)
+//                {
+//                    if(j<height-3 && !checkNoSpecificTileBelow(i, j, 1) && land[i][j+1] != 1 && land[i][j+2] != 1 && land[i][j+3] != 1)
+//                    {
+//                        temp[i][j] = 0;
+//                        temp[i][j+1] = 1;
+//                    }
+//                }
+                
                 // rule (two tiles above is air)
                 if(floor[i] - 2 == j || floor[i] - 1 == j)
                 {
@@ -238,8 +243,8 @@ public class CelularAutomata extends JFrame
                     temp[i][j] = 0;
                 }
                 
-                // rule (make the beginning of floor)
-                if(i < 20)
+                // rule (make the beginning and ending of floor)
+                if(i < 20 || i > width - 20)
                 {
                     if(j == beginFloorHeight)
                     {
@@ -311,6 +316,48 @@ public class CelularAutomata extends JFrame
         land = temp;
     }
     
+    private void generatePlatforms()
+    {
+        int startY = -1;
+        int count = 0;
+        
+        for(int i = 20; i < width - 20; i++)
+        {
+            int j = 0;
+            while(j<height-1 && land[i][j] != 1)
+            {
+                j++;
+            }
+            
+            if(land[i][j] == 1 && land[i-1][j] == 1 && land[i+1][j] == 1)
+            {
+                if(startY == -1 || startY != j)
+                {
+                    startY = j;
+                    count = 0;
+                }
+                
+                count ++;
+            }else
+            {
+                if(count >= 3)
+                {
+                    while(count > 0)
+                    {
+                        if(startY - 4 > 0 && land[i - count - 1][startY - 4] != 1 && land[i + 1][startY - 4] != 1)
+                        {
+                            land[i - count][startY - 4] = 4;
+                        }
+                        count --;
+                    }
+                }
+                
+                startY = -1;
+                count = 0;
+            }
+        }
+    }
+    
     private int[][] nextToLand(int[][] land, int tile)
     {
         int[][] temp = new int[width][height];
@@ -353,55 +400,6 @@ public class CelularAutomata extends JFrame
         return temp;
     }
     
-    private void placeCoins() 
-    {
-        int[][] topBottom = betweenLand(land, 1);
-        for(int i = 0; i < width - 1; i++)
-        {
-            for(int j = 0; j < height -1; j++)
-            {
-                if(land[i][j] == 1 && topBottom[i][j] == 0)
-                {
-                    if(j < height - 2 && land[i][j+2] == 1)
-                    {
-                         land[i][j] = 2;
-                    }
-                }
-            }
-        }
-    }
-    
-    private void makePlatforms()
-    {
-        int[][] topBottom = betweenLand(land, 3);
-        int[][] topBottomFloor = betweenLand(land, 1);
-        for(int i = 0; i < width-1; i++)
-        {
-            for(int j = 0; j < height - 3; j++)
-            {
-                if(topBottom[i][j] == 0 && topBottomFloor[i][j] == 0 && land[i][j] == 1)
-                {
-                    if(i > 0 && land[i-1][j] == 1)
-                    {
-//                        land[i][j] = 1;
-                    }else if(i < width - 1 && !(topBottom[i+1][j] == 0 && topBottomFloor[i+1][j] == 0) && land[i+1][j] == 1)
-                    {
-                        int x = i-1;
-                        while(x>=0 && land[x][j] == 4)
-                        {
-                            land[x][j] = 1;
-                            x--;
-                        }
-                    }
-                    else
-                    {
-                        land[i][j] = 4;
-                    }
-                }
-            }
-        }
-    }
-    
     private void makeBreakablePlatforms()
     {
         int[][] nextTo = nextToLand(land, 4);
@@ -425,73 +423,6 @@ public class CelularAutomata extends JFrame
         }
     }
     
-    private int[][] landCleanUp()
-    {
-        int[][] temp = land;
-        int[][] topBottom = betweenLand(land,1);
-        int[][] neighboors = nextToLand(land,1);
-        
-        for(int i = 0; i < width; i++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                //*
-                // rule foor (when air is enclosed in blocks fill the air)
-                if(land[i][j] == 0 && topBottom[i][j] == 2 )
-                {//&& ((i > 0 && topBottom[i-1][j] == 1) || (i < (land.length - 2) && topBottom[i+1][j] == 1))){
-                    temp[i][j-1] = 1;
-                    temp[i][j] = 1;
-                    temp[i][j+1] = 1;
-                }
-                //*/
-                
-                //*
-                if(land[i][j] == 1 && neighboors[i][j] == 0)
-                {
-                    temp[i][j] = 0;
-                }
-                //*/
-                
-                //*
-                // place wall below platform if platform is 2 thick
-                if(land[i][j] == 1 && (topBottom[i][j] > 0 || land[i][j] == 3))
-                {
-                    if(j > 0 && (land[i][j-1] == 3 || land[i][j-1] == 1))
-                    {
-                        land[i][j] = 3;
-                    }
-                }
-                if(land[i][j] == 0 && j > 0 && land[i][j-1] == 3)
-                {
-                    land[i][j] = 3;
-                }
-                //*/
-            }
-        }
-        
-        return temp;
-    }
-    
-    private void createWalls()
-    {
-        for(int i = 0; i < width; i++)
-        {
-            for(int j = height - 7; j < height; j++)
-            {
-                //*
-                // place wall below platform in bottom x blocks of level if the floor has only air below
-                if(land[i][j] == 1)
-                {
-                    if(checkNoSpecificTileBelow(i,j,1))
-                    {
-                        setWall(i,j);
-                    }
-                }
-                //*/
-            }
-        }         
-    }
-    
     private void placeMissingWalls()
     {
         for(int i = 0; i < width; i++)
@@ -505,26 +436,6 @@ public class CelularAutomata extends JFrame
             }
         }
     }
-    
-//    private void noGapsInWalls()
-//    {
-//        for(int i = 0; i < width; i++)
-//        {
-//            for(int j = 0; j < height; j++)
-//            {
-//                if(i < width-1 && land[i][j] == 1 && land[i+1][j] == 3 && checkNoSpecificTileBelow(i, j, 1))
-//                {
-//                    int x = i + 1;
-//                    while(x < width && land[x][j] == 3)
-//                    {
-//                        land[x][j] = 1;
-//                        x++;
-//                    }
-//                }
-////                if(i>0 && land[i][j] == 1 && land[i-1][j] == 3)
-//            }
-//        }
-//    }
     
     /*
      * Helper Function check for only air below a block
@@ -556,84 +467,7 @@ public class CelularAutomata extends JFrame
             }
         }
     }
-    
-    private void makeFloor()
-    {
-        int count = 0;
-        int floorHeight = 0;
-        
-        for(int i = 0; (i < width && i < 20); i++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                if(land[i][j] == 1)
-                {
-                    floorHeight += i;
-                    count++;
-                }
-            }
-        }
-        
-        floorHeight = floorHeight/count + 5;
-        if(floorHeight > (height - 1))
-        {
-            floorHeight = height - 2;
-        }
-        
-        for(int i = 0; (i < width && i < 20); i++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                if(j > floorHeight)
-                {
-                    land[i][j] = 3;
-                } else if(j == floorHeight)
-                {
-                    land[i][j] = 1;
-                } else 
-                {
-                    land[i][j] = 0;
-                }
-            }
-        }
-    }
-    
 
-    
-//    private int[][] neighboorsLand(int[][] land){
-//        int[][] temp = new int[width][height];
-//        for(int i = 0; i < width; i++){
-//            for(int j = 0; j < height; j++){
-//                temp[i][j] = 0;
-//                if(j>0){
-//                    temp[i][j] += land[i-1][j]; // left
-//                    if(i>0){
-//                        temp[i][j] += land[i-1][j-1]; // top-left
-//                    }
-//                    if(i<land.length - 1){
-//                        temp[i][j] += land[i-1][j+1]; // bottom-left
-//                    }
-//                }
-//                if(j < land[0].length - 1){
-//                    temp[i][j] += land[i+1][j]; // right
-//                    if(i>0){
-//                        temp[i][j] += land[i+1][j-1]; // top-right
-//                    }
-//                    if(i<land.length - 1){
-//                        temp[i][j] += land[i+1][j+1]; // bottom-right
-//                    }
-//                }
-//                if(i>0){
-//                    temp[i][j] += land[i][j-1]; // top
-//                }
-//                if(i<land.length - 1){
-//                    temp[i][j] += land[i][j+1]; // bottom
-//                }
-//            }
-//        }
-//        return temp;
-//    }
-    
     private void generateLand()
     {
         if(land != null)
