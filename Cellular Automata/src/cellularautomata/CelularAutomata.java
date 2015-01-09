@@ -103,7 +103,7 @@ public class CelularAutomata extends JFrame
         CelularAutomata test = new CelularAutomata();
         test.processN(10);
 //        test.placeCoins();
-        test.landCleanUp();
+//        test.landCleanUp();
 //        test.createWalls();
 //        test.makePlatforms();
 //        test.makeBreakablePlatforms();
@@ -226,12 +226,18 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
+                if(floor[i] - 2 == j || floor[i] - 1 == j)
+                {
+                    temp[i][j] = 0;
+                }
+                
                 // rule (if one of the top 3 tiles become air)
                 if(j <= 3)
                 {
                     temp[i][j] = 0;
                 }
                 
+                // rule (make the beginning of floor)
                 if(i < 20)
                 {
                     if(j == beginFloorHeight)
@@ -252,8 +258,8 @@ public class CelularAutomata extends JFrame
                 {
                     temp[startGap][floor[startGap-1]] = 1;
                     floor[startGap] = floor[startGap-1];
-                    temp[i][floor[i+1]] = 1;
-                    floor[i] = floor[i+1];
+                    temp[i-1][floor[i]] = 1;
+                    floor[i-1] = floor[i];
                 }
                 gapWidth = 0;
             } else 
