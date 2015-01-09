@@ -254,6 +254,8 @@ public class CelularAutomata extends JFrame
             // rule for gaps not to wide
             if(floor[i] != -1 && i < (width - 1))
             {
+                temp = floorWithinJumpRange(startGap-1, i, temp, 2);
+                
                 if(gapWidth > 6)
                 {
                     temp[startGap][floor[startGap-1]] = 1;
@@ -273,16 +275,23 @@ public class CelularAutomata extends JFrame
             // end gap rule
             
             // rule (if next floor is more than 3 tiles up it should be lowered)
-            if(i < width - 1 && floor[i] != -1 && floor[i+1] != -1 && (floor[i] - floor[i+1]) > 3)
-            {
-                int newFloorHeight = (floor[i] - floor[i+1]) - 3;
-                temp[i+1][floor[i+1]] = 0;
-                floor[i+1] += newFloorHeight;
-                temp[i+1][floor[i+1]] = 1;
-            }
+            temp = floorWithinJumpRange(i, i+1, temp, 3);
         }
         return temp;
         
+    }
+    
+    private int[][] floorWithinJumpRange(int firstTile, int secondTile, int[][]temp, int maxDifference)
+    {
+        if(firstTile >= 0 && secondTile < width - 1 && floor[firstTile] != -1 && floor[secondTile] != -1 && (floor[firstTile] - floor[secondTile]) > maxDifference)
+        {
+            int newFloorHeight = floor[firstTile] - maxDifference;
+            temp[secondTile][floor[secondTile]] = 0;
+            floor[secondTile] = newFloorHeight;
+            temp[secondTile][newFloorHeight] = 1;
+        }
+        
+        return temp;
     }
     
     private int[][] nextToLand(int[][] land, int tile)
