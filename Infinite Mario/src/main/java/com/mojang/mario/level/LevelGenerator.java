@@ -81,11 +81,11 @@ public class LevelGenerator
 
         int floor = height - 1 - random.nextInt(4);
 
-        level.xExit = length + 8;
-        level.yExit = floor;
-
         CellularAutomataLevelGenerator generator = new CellularAutomataLevelGenerator(width, height);
         int[][] generatedLevel = generator.getLand();
+        
+        level.xExit = width - 10;//length + 8;
+        level.yExit = generator.beginFloorHeight;
         
         int blockShift = 0;
         switch(type){

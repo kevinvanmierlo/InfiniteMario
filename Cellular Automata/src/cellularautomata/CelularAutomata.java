@@ -26,6 +26,8 @@ public class CelularAutomata extends JFrame
     private final int height = 15;
     private int blockSize = 10;
     
+    public int beginFloorHeight = 0;
+    
     public CelularAutomata()
     {
         OS = System.getProperty("os.name").toLowerCase();
@@ -167,7 +169,7 @@ public class CelularAutomata extends JFrame
         int startGap = 0;
         
         Random random = new Random();
-        int beginFloorHeight = random.nextInt(5);
+        beginFloorHeight = random.nextInt(5);
         beginFloorHeight = height - 1 - beginFloorHeight;
         
         for(int i = 0; i < width; i++)
