@@ -48,7 +48,8 @@ public class LevelScene extends Scene implements SpriteContext
         this.levelSeed = seed;
         this.renderer = renderer;
         this.levelDifficulty = levelDifficulty;
-        this.levelType = type;
+//        this.levelType = type;
+        this.levelType = LevelGenerator.TYPE_OVERGROUND;
     }
 
     public void init()

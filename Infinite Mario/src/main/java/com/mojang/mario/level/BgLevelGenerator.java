@@ -23,7 +23,8 @@ public class BgLevelGenerator
         this.width = width;
         this.height = height;
         this.distant = distant;
-        this.type = type;
+//        this.type = type;
+        this.type = LevelGenerator.TYPE_OVERGROUND;
     }
 
     private Level createLevel(long seed)
