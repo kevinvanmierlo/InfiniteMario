@@ -5,8 +5,14 @@
  */
 package com.mojang.mario.level;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.util.Arrays;
 import java.util.Random;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 /**
  *
@@ -42,6 +48,103 @@ public class CellularAutomataLevelGenerator
         makeBreakablePlatforms();
         placeMissingWalls();
         fixWalls();
+        new CellularAutomata();
+    }
+    
+    class CellularAutomata extends JFrame
+    {
+        private final String OS;    
+        private final JPanel worldPanel;
+        private int blockSize = 10;
+        
+        public CellularAutomata()
+        {
+            OS = System.getProperty("os.name").toLowerCase();
+
+            worldPanel = new JPanel() 
+            {
+                @Override
+                public void paint(Graphics g)
+                {
+                    if(land != null)
+                    {
+                        for(int i = 0; i < width; i++)
+                        {
+                            for(int j = 0; j < height; j++)
+                            {
+                                switch(land[i][j])
+                                {
+                                    case 0:
+                                        g.setColor(Color.WHITE);
+                                        break;
+                                    case 1:
+                                        if(floor[i] == j)
+                                            g.setColor(Color.GREEN);
+                                        else
+                                            g.setColor(Color.BLUE);
+                                        break;
+                                    case 2:
+                                        g.setColor(Color.YELLOW);
+                                        break;
+                                    case 3:
+                                        g.setColor(Color.CYAN);
+                                        break;
+                                    case 4:
+                                        g.setColor(Color.PINK);
+                                        break;
+                                    case 5:
+                                        g.setColor(Color.MAGENTA);
+                                        break;
+                                    case 10:
+                                        g.setColor(Color.green);
+                                    break;
+                                    case 11:
+                                        g.setColor(Color.green);
+                                    break;
+                                    case 12:
+                                        g.setColor(Color.blue);
+                                    break;
+                                    case 13:
+                                        g.setColor(Color.blue);
+                                    break;
+                                    case 14:
+                                        g.setColor(Color.CYAN);
+                                    break;
+                                    case 15:
+                                        g.setColor(Color.CYAN);
+                                    break;
+                                    case 16:
+                                        g.setColor(Color.CYAN);
+                                    break;
+                                    case 17:
+                                        g.setColor(Color.CYAN);
+                                    break;
+                                }
+
+                                g.fillRect(blockSize*i, blockSize*j, blockSize, blockSize);
+                            }
+                        }
+                    }
+                }
+            };
+
+            if(OS.contains("win"))
+            {
+                this.setSize(1020 + 16, height * this.blockSize + 58);
+            }else if(OS.contains("mac"))
+            {
+                this.setSize(1020, height * this.blockSize + 41);
+            }
+
+            worldPanel.setPreferredSize(new Dimension(width * this.blockSize, height * this.blockSize));
+            JScrollPane scrollPane = new JScrollPane(worldPanel);
+            worldPanel.setAutoscrolls(true);
+            scrollPane.setPreferredSize(new Dimension(1000, height * this.blockSize));
+
+            this.add(scrollPane);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setVisible(true);
+        }
     }
     
     public int[][] getLand()
