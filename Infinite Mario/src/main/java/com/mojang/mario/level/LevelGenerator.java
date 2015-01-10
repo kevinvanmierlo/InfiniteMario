@@ -87,6 +87,8 @@ public class LevelGenerator
         level.xExit = width - 10;//length + 8;
         level.yExit = generator.beginFloorHeight;
         
+        type = LevelGenerator.TYPE_OVERGROUND;
+        
         int blockShift = 0;
         switch(type){
             case LevelGenerator.TYPE_OVERGROUND:
@@ -112,7 +114,7 @@ public class LevelGenerator
                     case 1: // floor (5 + 8 * 16) (fun is cannons (blockShift + 14 + 0 * 16)
                         level.setBlock(x, y, (byte)(blockShift + 5 + 8 * 16));
                         // spawn random mobs in level
-                        if(x > 20 && x < width -20 && random.nextDouble() < (0.08 + (x / (width / 3)))){
+                        if(x > 20 && x < width -20 && random.nextDouble() < (0.03*difficulty + (x / (width * 3.00f)))){
                             level.setSpriteTemplate(x, y-1, new SpriteTemplate(random.nextInt(3), random.nextInt(35) < difficulty));
                         }
                     break;
