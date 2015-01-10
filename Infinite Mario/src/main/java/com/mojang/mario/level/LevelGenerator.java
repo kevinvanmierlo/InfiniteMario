@@ -111,6 +111,10 @@ public class LevelGenerator
                     break;
                     case 1: // floor (5 + 8 * 16) (fun is cannons (blockShift + 14 + 0 * 16)
                         level.setBlock(x, y, (byte)(blockShift + 5 + 8 * 16));
+                        // spawn random mobs in level
+                        if(x > 20 && x < width -20 && random.nextDouble() < (0.08 + (x / (width / 3)))){
+                            level.setSpriteTemplate(x, y-1, new SpriteTemplate(random.nextInt(3), random.nextInt(35) < difficulty));
+                        }
                     break;
                     case 2: // coin (0 + 2 * 16)
                         level.setBlock(x, y, (byte)(0 + 2 * 16));
