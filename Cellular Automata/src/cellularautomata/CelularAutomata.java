@@ -13,6 +13,24 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+    /*
+    0  = air
+    1  = land
+    2  = coins
+    3  = wall
+    4  = question block
+    5  = breakable block
+    
+    10 = floor left edge
+    11 = floor right edge
+    12 = mountain left edge
+    13 = mountain right edge
+    14 = floor left wall
+    15 = floor right wall
+    16 = mountain left wall
+    17 = mountain right wall
+    */
+
 /**
  *
  * @author Thomas & Kevin
@@ -28,7 +46,7 @@ public class CelularAutomata extends JFrame
     private int blockSize = 10;
     
     public int beginFloorHeight = 0;
-    
+
     public CelularAutomata()
     {
         OS = System.getProperty("os.name").toLowerCase();
@@ -102,6 +120,7 @@ public class CelularAutomata extends JFrame
             }
         };
         
+        // Correct size on windows and mac
         if(OS.contains("win"))
         {
             this.setSize(1020 + 16, height * this.blockSize + 58);
@@ -137,14 +156,18 @@ public class CelularAutomata extends JFrame
         test.repaint();
     }
     
+    /**
+     * Update the land according to our rules
+     * @param n number of updates
+     */
     public void processN(int n) 
     {
-        //*
         for(int i = 0;i < n; i++)
-        {
-            //land = process(land);
-            //generateLand();   
+        {  
+            // First get the floor
             getFloor();
+            
+            // Then update the land according to our rules
             land = updateLand(land);
             
             try {
@@ -154,7 +177,6 @@ public class CelularAutomata extends JFrame
             }
             repaint();
         }
-        //*/
     }
     
     /**
@@ -165,11 +187,11 @@ public class CelularAutomata extends JFrame
         for(int i = 0; i < width; i++)
         {
             int j = height - 1;
-            while(land[i][j] != 1 && j > 0)// && j > (height * (3/5)))
+            while(land[i][j] != 1 && j > 0)
             {
                 j--;
             }
-            if(j >0)//<= (height * (3/5)))
+            if(j >0)
             {
                 floor[i] = j;
             }else
@@ -186,7 +208,6 @@ public class CelularAutomata extends JFrame
      */
     private int[][] updateLand(int[][] land)
     {
-        //int[][] neighboors = neighboorsLand(land);
         int[][] nextTo = nextToLand(land, 1);
         int[][] topBottom = betweenLand(land, 1);
         int[][] temp = land;
@@ -211,7 +232,6 @@ public class CelularAutomata extends JFrame
                         temp[i][j] = 1;
                 } else 
                 { //rule two continued
-                    //*
                     if(land[i][j] == 1)
                     {
                         if(nextTo[i][j] == 1)
@@ -228,11 +248,10 @@ public class CelularAutomata extends JFrame
                             }
                         }
                     }
-                    //*/
                 }
                 
-                // rule three (when a bock has no block above and below look at block above it that one has two topbottom neighboors.
-                // if it has remove the origional block)
+                // rule three (when a block has no block above and no block below, look at the block above it. 
+                // If it has a block above and a block below. Remove this block (Bigger gaps (in height) between platforms)
                 if(land[i][j] == 1 && topBottom[i][j] == 0)
                 {
                     if(j > 0 && topBottom[i][j-1] == 2)
@@ -241,37 +260,19 @@ public class CelularAutomata extends JFrame
                     }
                 }
                 
-                // rule four (if air has 1 neighboor below with a solid neighboor then remove this first neighboor below the air)
-                if(land[i][j] == 0 && topBottom[i][j] == 1)
-                {
-                    if(j > height-1 && land[i][j+1] == 1 && topBottom[i][j+1] == 1)
-                    {
-                        temp[i][j+1] = 0;
-                    }
-                }
-                
-//                if(land[i][j] == 1)
-//                {
-//                    if(j<height-3 && !checkNoSpecificTileBelow(i, j, 1) && land[i][j+1] != 1 && land[i][j+2] != 1 && land[i][j+3] != 1)
-//                    {
-//                        temp[i][j] = 0;
-//                        temp[i][j+1] = 1;
-//                    }
-//                }
-                
-                // rule (two tiles above is air)
+                // rule four (two tiles above floor becomes air)
                 if(floor[i] - 2 == j || floor[i] - 1 == j)
                 {
                     temp[i][j] = 0;
                 }
                 
-                // rule (if one of the top 3 tiles become air)
+                // rule five (top 4 tiles become air)
                 if(j <= 3)
                 {
                     temp[i][j] = 0;
                 }
                 
-                // rule (make the beginning and ending of floor)
+                // rule six (first and last 20 tiles become straight floor)
                 if(i < 20 || i > width - 20)
                 {
                     if(j == beginFloorHeight)
@@ -285,9 +286,10 @@ public class CelularAutomata extends JFrame
                 }
             }
             
-            // rule for gaps not to wide
+            // rule seven (gaps should not be too wide)
             if(floor[i] != -1 && i < (width - 1))
             {
+                // sub rule (max height between floors are less when theres a gap between)
                 temp = floorWithinJumpRange(startGap-1, i, temp, 2);
                 
                 if(gapWidth > 6)
@@ -308,13 +310,21 @@ public class CelularAutomata extends JFrame
             }
             // end gap rule
             
-            // rule (if next floor is more than 3 tiles up it should be lowered)
+            // rule eight (if next floor is more than 3 tiles up it should be lowered)
             temp = floorWithinJumpRange(i, i+1, temp, 3);
         }
         return temp;
         
     }
     
+    /**
+     * Check if secondTile is between maxDifference, if not secondTile is lowered
+     * @param firstTile the first tile on the x-axis (used to check difference with secondTile)
+     * @param secondTile the second tile on the x-axis (used to check difference with firstTile)
+     * @param temp the temp land for updating tiles
+     * @param maxDifference the maximum difference between the two tiles
+     * @return 
+     */
     private int[][] floorWithinJumpRange(int firstTile, int secondTile, int[][]temp, int maxDifference)
     {
         if(firstTile >= 0 && secondTile < width - 1 && floor[firstTile] != -1 && floor[secondTile] != -1 && (floor[firstTile] - floor[secondTile]) > maxDifference)
@@ -328,6 +338,9 @@ public class CelularAutomata extends JFrame
         return temp;
     }
     
+    /**
+     * Remove this block if there is another block below
+     */
     private void removeDoubleBlocks()
     {
         int[][]temp = land;
@@ -344,6 +357,10 @@ public class CelularAutomata extends JFrame
         land = temp;
     }
     
+    /**
+     * Generate question blocks. On top of floor or mountain if the size is bigger than 2 blocks.
+     * Doesn't appear above edges of floor or mountain.
+     */
     private void generatePlatforms()
     {
         int startY = -1;
@@ -386,6 +403,12 @@ public class CelularAutomata extends JFrame
         }
     }
     
+    /**
+     * Used to get the neighbours on the right and left
+     * @param land The map to get the neighbours from
+     * @param tile The kind of tile you want to check for neighbours
+     * @return the map with numbers as how many neighbours (land[i][j] = 1, so has 1 neighbour)
+     */
     private int[][] nextToLand(int[][] land, int tile)
     {
         int[][] temp = new int[width][height];
@@ -407,6 +430,12 @@ public class CelularAutomata extends JFrame
         return temp;
     }
     
+    /**
+     * Used to get the neighbours above and below
+     * @param land The map to get the neighbours from
+     * @param tile The kind of tile you want to check for neighbours
+     * @return the map with numbers as how many neighbours (land[i][j] = 1, so has 1 neighbour)
+     */
     private int[][] betweenLand(int[][] land, int tile)
     {
         int[][] temp = new int[width][height];
@@ -428,6 +457,9 @@ public class CelularAutomata extends JFrame
         return temp;
     }
     
+    /**
+     * If it is a question block which is more than 4 wide, it becomes a breakable platform
+     */
     private void makeBreakablePlatforms()
     {
         int[][] nextTo = nextToLand(land, 4);
@@ -451,6 +483,9 @@ public class CelularAutomata extends JFrame
         }
     }
     
+    /**
+     * Put a wall below every land
+     */
     private void placeMissingWalls()
     {
         for(int i = 0; i < width; i++)
@@ -527,8 +562,12 @@ public class CelularAutomata extends JFrame
         land = temp;
     }
     
-    /*
-     * Helper Function check for only air below a block
+    /**
+     * Helper function to check if there is no tile below with tileID
+     * @param i the parameter on the x-axis
+     * @param j the parameter on the y-axis
+     * @param tileID the ID of the tile you want to check
+     * @return 
      */
     private boolean checkNoSpecificTileBelow(int i, int j, int tileID)
     {
@@ -544,8 +583,10 @@ public class CelularAutomata extends JFrame
         return result;
     }
     
-    /*
-     * Helper Function place wall below block till botom of world
+    /**
+     * Helper function to place a wall below a block untill you reach the bottom of the world
+     * @param i the parameter on the x-axis
+     * @param j the parameter on the y-axis
      */
     private void setWall(int i, int j)
     {
@@ -558,6 +599,9 @@ public class CelularAutomata extends JFrame
         }
     }
 
+    /**
+     * Generate all the blocks in the beginning (seed)
+     */
     private void generateLand()
     {
         if(land != null)
@@ -572,6 +616,11 @@ public class CelularAutomata extends JFrame
         }
     }
     
+    /**
+     * Copy the content of an array and not the reference
+     * @param original original array to copy the content from
+     * @return a new array with the same content as the original
+     */
     public int[][] copyArray(int[][] original) 
     {
         if (original == null) 
@@ -583,8 +632,6 @@ public class CelularAutomata extends JFrame
         for (int i = 0; i < original.length; i++) 
         {
             result[i] = Arrays.copyOf(original[i], original[i].length);
-            // For Java versions prior to Java 6 use the next:
-            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
         }
         return result;
     }
